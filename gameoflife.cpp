@@ -94,27 +94,29 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 		}
 		life_matrix(std::string filename) {
 
-			std::ifstream input_source;
-			
-			//filename = "";
-			//if (filename == "") {
-			//	input_source = std::cin;
-			//} else {
-			input_source = std::ifstream(filename);
-			//}
-			if (!input_source.is_open()) {
-				panic("Could not open the file - '%s'\n", filename);
-			}
+			std::string file_content;
 
-			// std::vector<char> content;
-			std::string content;
-			char c;
-			while (input_source.get(c)) {
-				//content.push_back(c);
-				content += std::string(1,c);
+			if (filename != "") {
+				std::ifstream input_source(filename);
+				if (!input_source.is_open()) {
+					panic("Could not open the file - '%s'\n", filename);
+				}
+				char c;
+				for (std::string line; std::getline(input_source, line); ) {
+					file_content += line + "\n";
+				}
+				input_source.close();
+			} else {
+				std::string line;
+				for ( std::string line; std::getline(std::cin, line); ) {
+					file_content += line + "\n";
+				}
 			}
 			
-			input_source.close();
+			// std::cout 
+			// 	<< "==========================="	<< std::endl
+			// 	<< 		file_content				<< std::endl
+			// 	<< "==========================="	<< std::endl;
 			
 			// validating content format
 			std::vector<int> row_lengths;
@@ -132,7 +134,7 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 			*/
 			
 			int STATE = STATE1; // just going through an ad hoc finite automaton that 1) recognized this is in approved format and 2) tracks the rows and row lengths so we can check that the grid is not ragged
-			for (char x : content) {
+			for (char x : file_content) {
 				switch(STATE) {
 					case STATE1:
 						if (x == NOT_ALIVE || x == ALIVE) {
@@ -181,6 +183,7 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 				row_lengths.push_back(++row_length);
 			}
 
+			// std::cout << "STATE: " << STATE << std::endl;
 			assert (
 				(STATE == STATE4 || STATE == STATE2)
 				&& "the grid is not in proper csv format with 0s and 1s as the elements"
@@ -196,10 +199,10 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 			int rows = row_lengths.size(); int cols = row_length;
 			m.resize(rows,std::vector<char>(cols));
 			int i = 0, j = 0;
-			for (char x : content) {
-				switch(x) {
+			for (char c : file_content) {
+				switch(c) {
 					case NOT_ALIVE: case ALIVE: 
-						m[i][j++] = x;
+						m[i][j++] = c;
 						continue;
 					case ',':
 						continue;
@@ -345,6 +348,7 @@ show_usage(char* name) {
 				"\n\t[--verbose]                    // show the transformation to the console step by step"
 				"\n\t[--refresh-rate (msec)]        // only relevant for verbose output"
 				"\n\t[--random-genesis-rate (0..1)] // the chance between 0 and 1 that a dead cell will spontaneously come to life"
+				"\n\t[--help]                       // show this message"
 				"\n",
 			name);
 	exit(2);
@@ -400,9 +404,6 @@ int main (int argc, char* argv[]) {
 	}
 
 	life_matrix m(input_file);
-	
-	// std::cout << m.to_string() << std::endl;
-	// sleep_print(5);
 
 	for(int i = 0; i < steps; i++) {
 		life_matrix n = m.next_step(random_genesis_rate);
