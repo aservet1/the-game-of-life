@@ -1,0 +1,21 @@
+populate with random ones rarely
+
+save each frame to a separate file in a directory
+
+command line arg to specify input file
+
+stdin if not specified input file
+
+run options:
+	one time
+	infinitely
+	until stable (advanced)
+
+output one run to a file
+
+output the result of N runs to a file
+	optional 'display the middle frames' to the command line
+
+optimize neighbor number count so it doesnt do more comparisons
+  or additions beyond the minimum it needs to know what action
+  to take
