@@ -76,10 +76,17 @@ the preceding one. The rules continue to be applied repeatedly to create further
 	exit(1);					\
 }
 
-
 static double
 rand01() {
   return (double)rand() / (RAND_MAX + 1.0);
+}
+
+static std::string
+strip_whitespace(std::string s) {
+	int start = 0, stop = s.size();
+	while (s[start] == '\n' || s[start] == ' ' || s[start] == '\t') start++;
+	while (s[stop]  == '\n' || s[stop]  == ' ' || s[stop]  == '\t') stop--;
+	return s.substr(start,stop);
 }
 
 class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.com/questions/618511/a-proper-way-to-create-a-matrix-in-c
@@ -112,6 +119,8 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 					file_content += line + "\n";
 				}
 			}
+			
+			// file_content = strip_whitespace(file_content);
 			
 			// std::cout 
 			// 	<< "==========================="	<< std::endl
@@ -300,11 +309,14 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 			std::string s("");
 			for (int i = 0; i < rows(); i++) {
 				for (int j = 0; j < cols(); j++) {
-					s += std::string(1,(*this)[i][j]) + " ";
+					s += std::string(1,(*this)[i][j])
+						+ ((j != cols()-1)
+							? ","
+							: "");
 				}
 				s += "\n";
 			}
-			return s;
+			return strip_whitespace(s);
 		}
 		int rows() {
 			return m.size();
