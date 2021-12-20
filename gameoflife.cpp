@@ -354,13 +354,13 @@ sleep_print(int seconds) {
 static void
 show_usage(char* name) {
 	printf("usage: %s"
-				"\n\t[--input-file input_file]      // file (in proper format) containing the seed image of the game of life. if none provided, seed will be read from standard input"
-				"\n\t[--steps n]                    // number of steps of the game of life to apply to the seed"
-				"\n\t[--output-file output_file]    // file containing the result of the nth transformation"
-				"\n\t[--verbose]                    // show the transformation to the console step by step"
-				"\n\t[--refresh-rate (msec)]        // only relevant for verbose output"
-				"\n\t[--random-genesis-rate (0..1)] // the chance between 0 and 1 that a dead cell will spontaneously come to life"
-				"\n\t[--help]                       // show this message"
+				"\n\t[-f|--input-file input_file]      // file (in proper format) containing the seed image of the game of life. if none provided, seed will be read from standard input"
+				"\n\t[-n|--steps n]                    // number of steps of the game of life to apply to the seed"
+				"\n\t[-o|--output-file output_file]    // file containing the result of the nth transformation. if none, results will be written to stdout"
+				"\n\t[-v|--verbose]                    // show the transformation to the console step by step"
+				"\n\t[--refresh-rate (msec)]           // only relevant for verbose output. time between display of each transformation frame"
+				"\n\t[--random-genesis-rate (0..1)]    // the chance between 0 and 1 that a dead cell will spontaneously come to life"
+				"\n\t[-h|--help]                       // show this message"
 				"\n",
 			name);
 	exit(2);
@@ -387,28 +387,28 @@ int main (int argc, char* argv[]) {
 	// 	show_usage(argv[0]);
 	// }
 	for ( int i = 1; i < argc; ++i ) {
-		if (cstreq(argv[i],"--input-file")) {
+		if (cstreq(argv[i],"-f") || cstreq(argv[i],"--input-file")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			input_file = argv[++i];
 		}
-		else if (cstreq(argv[i],"--steps")) {
+		else if (cstreq(argv[i],"-n") || cstreq(argv[i],"--steps")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			steps = std::stoi(argv[++i]);
 		}
-		else if (cstreq(argv[i],"--output-file")) {
+		else if (cstreq(argv[i],"-o") || cstreq(argv[i],"--output-file")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			output_file = argv[++i];
 		}
-		else if (cstreq(argv[i],"--verbose")) {
+		else if (cstreq(argv[i],"-v") || cstreq(argv[i],"--verbose")) {
 			verbose = true;
-		}
-		else if (cstreq(argv[i],"--random-genesis-rate")) {
-			if (i+1 == argc) show_usage(argv[0]);
-			random_genesis_rate = std::stod(argv[++i]);
 		}
 		else if (cstreq(argv[i],"--refresh-rate")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			refresh_rate_msec = std::stoi(argv[++i]);
+		}
+		else if (cstreq(argv[i],"--random-genesis-rate")) {
+			if (i+1 == argc) show_usage(argv[0]);
+			random_genesis_rate = std::stod(argv[++i]);
 		}
 		else {
 			show_usage(argv[0]);
