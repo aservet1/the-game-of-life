@@ -8,3 +8,6 @@ Get help on what the command line arguments entail with `.\gameoflife.exe --help
 
 ## build
 `g++ gameoflife.cpp -o gameoflife`. It's all contained in one file, so I haven't made a makefile for this project or do any rigorous project structuring or anything yet.
+
+## platforms
+I have conditional compilation of C++ for Linux and Windows. Contact me if you want me to add Mac support and I can look through where than needs to happen.
