@@ -338,12 +338,13 @@ sleep_print(int seconds) {
 
 static void
 show_usage(char* name) {
-	printf("usage: %s <input_file>"
-				"\n\t[--steps n]"
-				"\n\t[--output output_file]"
-				"\n\t[--verbose]"
-				"\n\t[--random-genesis-rate (0..1)]"
-				"\n\t[--refresh-rate (msec)]"
+	printf("usage: %s"
+				"\n\t[--input-file <input_file>]    // file (in proper format) containing the seed image of the game of life"
+				"\n\t[--steps n]                    // number of steps of the game of life to apply to the seed"
+				"\n\t[--output-file output_file]    // file containing the result of the nth transformation"
+				"\n\t[--verbose]                    // show the transformation to the console step by step"
+				"\n\t[--refresh-rate (msec)]        // only relevant for verbose output"
+				"\n\t[--random-genesis-rate (0..1)] // the chance between 0 and 1 that a dead cell will spontaneously come to life"
 				"\n",
 			name);
 	exit(2);
@@ -353,40 +354,43 @@ int main (int argc, char* argv[]) {
 	
 	// todo: read from stdin if no input file
 	
+	// todo: process enormous images with worker threads
+	
 	srand(time(nullptr));
 	
-	bool verbose = false;
-	std::string output_file = "";
 	int steps = 1;
-	std::string input_file = "";
-	double random_genesis_rate = 0;
+	bool verbose = false;
 	int refresh_rate_msec = 100;
+	std::string input_file = "";
+	std::string output_file = "";
+	double random_genesis_rate = 0;
 
-	#define streq(s1,s2) !strcmp(s1,s2)
+	#define cstreq(s1,s2) !strcmp(s1,s2)
 
 	if (argc < 2) {
 		show_usage(argv[0]);
 	}
 	for ( int i = 1; i < argc; ++i ) {
-		if (i == 1) {
-			input_file = argv[i];
+		if (cstreq(argv[i],"--input-file")) {
+			if (i+1 == argc) show_usage(argv[0]);
+			input_file = argv[++i];
 		}
-		else if (streq(argv[i],"--steps")) {
+		else if (cstreq(argv[i],"--steps")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			steps = std::stoi(argv[++i]);
 		}
-		else if (streq(argv[i],"--output")) {
+		else if (cstreq(argv[i],"--output-file")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			output_file = argv[++i];
 		}
-		else if (streq(argv[i],"--verbose")) {
+		else if (cstreq(argv[i],"--verbose")) {
 			verbose = true;
 		}
-		else if (streq(argv[i],"--random-genesis-rate")) {
+		else if (cstreq(argv[i],"--random-genesis-rate")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			random_genesis_rate = std::stod(argv[++i]);
 		}
-		else if (streq(argv[i],"--refresh-rate")) {
+		else if (cstreq(argv[i],"--refresh-rate")) {
 			if (i+1 == argc) show_usage(argv[0]);
 			refresh_rate_msec = std::stoi(argv[++i]);
 		}
@@ -412,7 +416,17 @@ int main (int argc, char* argv[]) {
 		m = n;
 	}
 
-	std::cout << m.to_string() << std::endl;
+	if (output_file == "") {
+		std::cout << m.to_string() << std::endl;
+	}
+	else {
+		std::ofstream fout(output_file);
+		if (!fout.is_open()) {
+			panic("%s\n","output stream for your final output file failed to open");
+		}
+		fout << m.to_string();
+		fout.close();
+	}
 
 	return 0;
 }
