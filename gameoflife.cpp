@@ -354,7 +354,7 @@ sleep_print(int seconds) {
 static void
 show_usage(char* name) {
 	printf("usage: %s"
-				"\n\t[--input-file <input_file>]    // file (in proper format) containing the seed image of the game of life"
+				"\n\t[--input-file input_file]      // file (in proper format) containing the seed image of the game of life. if none provided, seed will be read from standard input"
 				"\n\t[--steps n]                    // number of steps of the game of life to apply to the seed"
 				"\n\t[--output-file output_file]    // file containing the result of the nth transformation"
 				"\n\t[--verbose]                    // show the transformation to the console step by step"
@@ -383,9 +383,9 @@ int main (int argc, char* argv[]) {
 
 	#define cstreq(s1,s2) !strcmp(s1,s2)
 
-	if (argc < 2) {
-		show_usage(argv[0]);
-	}
+	// if (argc < 2) {
+	// 	show_usage(argv[0]);
+	// }
 	for ( int i = 1; i < argc; ++i ) {
 		if (cstreq(argv[i],"--input-file")) {
 			if (i+1 == argc) show_usage(argv[0]);
@@ -430,7 +430,7 @@ int main (int argc, char* argv[]) {
 	}
 
 	if (output_file == "") {
-		std::cout << m.to_string() << std::endl;
+		std::cout << m.to_string();
 	}
 	else {
 		std::ofstream fout(output_file);
