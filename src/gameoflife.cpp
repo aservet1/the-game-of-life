@@ -192,7 +192,7 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 				row_lengths.push_back(++row_length);
 			}
 
-			// std::cout << "STATE: " << STATE << std::endl;
+			std::cout << "STATE: " << STATE << std::endl;
 			assert (
 				(STATE == STATE4 || STATE == STATE2)
 				&& "the grid is not in proper csv format with 0s and 1s as the elements"
