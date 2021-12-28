@@ -99,6 +99,15 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 			assert(default_state == ALIVE || default_state == NOT_ALIVE);
 			m.resize(rows,std::vector<char>(cols,default_state));
 		}
+		// life_matrix(const life_matrix& to_clone) {
+		// 	int n_rows = to_clone.rows(), n_cols = to_clone.cols();
+		// 	m.resize(n_rows,std::vector<char>(n_cols));
+		// 	for (int i = 0; i < to_clone.rows(); i++) {
+		// 		for (int j = 0; j < to_clone.cols(); j++) {
+		// 			(*this)[i][j] = to_clone[i][j];
+		// 		}
+		// 	}
+		// }
 		life_matrix(std::string filename) {
 
 			std::string file_content;
@@ -192,7 +201,7 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 				row_lengths.push_back(++row_length);
 			}
 
-			std::cout << "STATE: " << STATE << std::endl;
+			// std::cout << "STATE: " << STATE << std::endl;
 			assert (
 				(STATE == STATE4 || STATE == STATE2)
 				&& "the grid is not in proper csv format with 0s and 1s as the elements"
@@ -223,13 +232,13 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 			}
 		}
 
-		life_matrix
+		const life_matrix
 		next_step() {
 			double random_genesis_rate = 0;
 			return next_step(random_genesis_rate);
 		}
 
-		life_matrix
+		const life_matrix
 		next_step(double random_genesis_rate) {
 			life_matrix next(rows(),cols());
 
@@ -273,7 +282,18 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 			return next;
 		}
 
-		int
+		// void
+		// import_population(life_matrix& other) {
+		// 	int n_cols = std::min(this->cols(), other.cols());
+		// 	int n_rows = std::min(this->rows(), other.rows());
+		// 	for (int i = 0; i < n_rows; i++) {
+		// 		for (int j = 0; j < n_cols; j++) {
+		// 			(*this)[i][j] = other[i][j];
+		// 		}
+		// 	}
+		// }
+
+		const int
 		number_alive() {
 			int count = 0;
 			for (int i = 0; i < rows(); i++) {
@@ -304,7 +324,7 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 				printf("\n");
 			}
 		}
-		std::string
+		const std::string
 		to_string() {
 			std::string s("");
 			for (int i = 0; i < rows(); i++) {
@@ -318,14 +338,37 @@ class life_matrix { // adapted from Jimmy J's answer in https://stackoverflow.co
 			}
 			return strip_whitespace(s);
 		}
-		int rows() {
+		void display(){
+			// display("Φ"," "); // Ω π
+			display("@"," ");
+		}
+		void // const std::string
+		display(std::string alive_marker, std::string not_alive_marker) {
+
+			std::string s(" ");
+			std::string line;
+			for (int x = 0; x < cols()-1; x++) s += " -"; s += "\n";
+			for (int i = 0; i < rows(); i++) {
+				line = "|";
+				for (int j = 0; j < cols(); j++) {
+					line += (
+						(m[i][j] == ALIVE) ? alive_marker : not_alive_marker
+					) + " ";
+				}
+				line += "|";
+				s += line + "\n";
+			}
+			s += " "; for (int x = 0; x < cols()-1; x++) s += " -"; s += "\n";
+			std::cout << s;
+		}
+		int const rows() {
 			return m.size();
 		}
-		int cols() {
+		int const cols() {
 			return m[0].size();
 		}
 		private:
-			int
+			int const
 			live_neighbor_count(int i, int j) { // TODO: group these so you dont have to do 8 3way boolean checks every single time (think about how many checks you can get this to do with different logic grouping setups). maybe have a private method that returns an array of coordinates, which are all of the ones you need to check. then you stop checking when at most you already have at least 3 live neighbors or whatever minimum number you need to check to know whether this cell lives or dies
 				int count = 0;
 
@@ -353,14 +396,15 @@ sleep_print(int seconds) {
 
 static void
 show_usage(char* name) {
-	printf("usage: %s"
-				"\n\t[-f|--input-file input_file]      // file (in proper format) containing the seed image of the game of life. if none provided, seed will be read from standard input"
-				"\n\t[-n|--steps n]                    // number of steps of the game of life to apply to the seed"
-				"\n\t[-o|--output-file output_file]    // file containing the result of the nth transformation. if none, results will be written to stdout"
-				"\n\t[-v|--verbose]                    // show the transformation to the console step by step"
-				"\n\t[--refresh-rate (msec)]           // only relevant for verbose output. time between display of each transformation frame"
-				"\n\t[--random-genesis-rate (0..1)]    // the chance between 0 and 1 that a dead cell will spontaneously come to life"
-				"\n\t[-h|--help]                       // show this message"
+	printf("\n  usage: %s [OPTIONS (described below)]\n\n"
+				"      [-f | --input-file input_file]                               // file (in proper format) containing the seed image of the game of life. if none provided, seed will be read from stdin\n"
+				"      [-n | --steps n]                                             // number of steps of the game of life to apply to the seed\n"
+				"      [-o | --output-file output_file]                             // file containing the result of the nth transformation. if none, results will be written to stdout\n"
+				"      [-v | --verbose]                                             // show the transformation to the console step by step\n"
+				"      [--refresh-rate (msec)]                                      // only relevant for verbose output. time between display of each transformation frame\n"
+				"      [--random-genesis-rate (0..1)]                               // the chance between 0 and 1 that a dead cell will spontaneously come to life\n"
+				"      [-h | --help]                                                // show this message\n"
+				"      [-d | --display-markers '<alive_marker> <not_alive_marker>'] // markers for the animation display. can't use comma as a marker\n"
 				"\n",
 			name);
 	exit(2);
@@ -368,24 +412,20 @@ show_usage(char* name) {
 
 int main (int argc, char* argv[]) {
 	
-	// todo: read from stdin if no input file
-	
 	// todo: process enormous images with worker threads
 	
 	srand(time(nullptr));
 	
 	int steps = 1;
 	bool verbose = false;
-	int refresh_rate_msec = 100;
+	int refresh_rate_msec = 50;
 	std::string input_file = "";
 	std::string output_file = "";
 	double random_genesis_rate = 0;
+	std::string alive_marker = "@", not_alive_marker = " ";
 
 	#define cstreq(s1,s2) !strcmp(s1,s2)
 
-	// if (argc < 2) {
-	// 	show_usage(argv[0]);
-	// }
 	for ( int i = 1; i < argc; ++i ) {
 		if (cstreq(argv[i],"-f") || cstreq(argv[i],"--input-file")) {
 			if (i+1 == argc) show_usage(argv[0]);
@@ -410,6 +450,16 @@ int main (int argc, char* argv[]) {
 			if (i+1 == argc) show_usage(argv[0]);
 			random_genesis_rate = std::stod(argv[++i]);
 		}
+		else if (cstreq(argv[i],"-d") || cstreq(argv[i],"--display-markers")) {
+			if (i+1 == argc) show_usage(argv[0]);
+			char* items = argv[++i];
+			char a[1024], b[1024];
+
+			sscanf(items, "%s %s", a, b);
+
+			alive_marker     = std::string(a);
+			not_alive_marker = std::string(b);
+		}
 		else {
 			show_usage(argv[0]);
 		}
@@ -421,8 +471,11 @@ int main (int argc, char* argv[]) {
 		life_matrix n = m.next_step(random_genesis_rate);
 		
 		if (verbose) {
-			std::cout << n.to_string() << std::endl;
-			std::cout << std::endl << std::endl;
+			// std::cout << "===============================================" << std::endl;
+			/*std::string pretty =*/ n.display(alive_marker, not_alive_marker);
+			// std::cout << pretty << std::endl;
+			// std::cout << std::endl << std::endl;
+			// std::cout << "===============================================" << std::endl;
 			sleep_msec(refresh_rate_msec);
 		}
 	
