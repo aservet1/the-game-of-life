@@ -1,4 +1,6 @@
 
+package firesim;
+
 import java.util.stream.IntStream;
 
 public class Grid {

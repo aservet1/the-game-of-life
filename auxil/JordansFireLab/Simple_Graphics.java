@@ -1,4 +1,6 @@
 
+package firesim;
+
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -37,10 +39,10 @@ public class Simple_Graphics extends JPanel implements ActionListener {
     private void doDrawing(Graphics g) {
     	
     	Graphics2D g2d = (Graphics2D) g;
-    	
+
         int total_width = getWidth();
         int width_of_cell = total_width / grid.getNumColumns();
-        
+
         int total_height = getHeight();
         int height_of_cell = total_height / grid.getNumRows();
         

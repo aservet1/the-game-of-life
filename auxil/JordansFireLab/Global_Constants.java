@@ -1,4 +1,6 @@
 
+package firesim;
+
 import java.util.Random;
 
 public class Global_Constants {
