@@ -11,6 +11,7 @@ void sleep_msec(int ms) {
 	Sleep(ms);
 }
 #elif __linux__
+#include <cstring>
 #include <time.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -403,6 +404,7 @@ show_usage(char* name) {
 				"      [-v | --verbose]                                             // show the transformation to the console step by step\n"
 				"      [--refresh-rate (msec)]                                      // only relevant for verbose output. time between display of each transformation frame\n"
 				"      [--random-genesis-rate (0..1)]                               // the chance between 0 and 1 that a dead cell will spontaneously come to life\n"
+				"      [--infinite-display-loop]                                    // display in an infinite loop (todo: modify so it knows when it's boring and needs to die)\n"
 				"      [-h | --help]                                                // show this message\n"
 				"      [-d | --display-markers '<alive_marker> <not_alive_marker>'] // markers for the animation display. can't use comma as a marker\n"
 				"\n",
@@ -418,6 +420,7 @@ int main (int argc, char* argv[]) {
 	
 	int steps = 1;
 	bool verbose = false;
+	bool infinite_display_loop = false;
 	int refresh_rate_msec = 50;
 	std::string input_file = "";
 	std::string output_file = "";
@@ -441,6 +444,9 @@ int main (int argc, char* argv[]) {
 		}
 		else if (cstreq(argv[i],"-v") || cstreq(argv[i],"--verbose")) {
 			verbose = true;
+		}
+		else if (cstreq(argv[i],"--infinite-display-loop")) {
+			infinite_display_loop = true;
 		}
 		else if (cstreq(argv[i],"--refresh-rate")) {
 			if (i+1 == argc) show_usage(argv[0]);
@@ -466,6 +472,15 @@ int main (int argc, char* argv[]) {
 	}
 
 	life_matrix m(input_file);
+
+	if (infinite_display_loop) {
+		while (0 < 1) {
+			life_matrix n = m.next_step(random_genesis_rate);
+			n.display(alive_marker, not_alive_marker);
+			sleep_msec(refresh_rate_msec);
+			m = n;
+		}
+	}
 
 	for(int i = 0; i < steps; i++) {
 		life_matrix n = m.next_step(random_genesis_rate);
