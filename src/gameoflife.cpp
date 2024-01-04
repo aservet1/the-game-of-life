@@ -396,17 +396,39 @@ sleep_print(int seconds) {
 }
 
 static void
-show_usage(char* name) {
-	printf("\n  usage: %s [OPTIONS (described below)]\n\n"
-				"      [-f | --input-file input_file]                               // file (in proper format) containing the seed image of the game of life. if none provided, seed will be read from stdin\n"
-				"      [-n | --steps n]                                             // number of steps of the game of life to apply to the seed\n"
-				"      [-o | --output-file output_file]                             // file containing the result of the nth transformation. if none, results will be written to stdout\n"
-				"      [-v | --verbose]                                             // show the transformation to the console step by step\n"
-				"      [--refresh-rate (msec)]                                      // only relevant for verbose output. time between display of each transformation frame\n"
-				"      [--random-genesis-rate (0..1)]                               // the chance between 0 and 1 that a dead cell will spontaneously come to life\n"
-				"      [--infinite-display-loop]                                    // display in an infinite loop (todo: modify so it knows when it's boring and needs to die)\n"
-				"      [-h | --help]                                                // show this message\n"
-				"      [-d | --display-markers '<alive_marker> <not_alive_marker>'] // markers for the animation display. can't use comma as a marker\n"
+usage(char* name) {
+	printf(
+				"\n  usage: %s [OPTIONS (described below)]\n\n"
+				"      -f | --input-file input_file\n"
+				"          file (in proper format) containing the seed image of the game of life\n"
+				"          if none provided, seed will be read from stdin\n"
+				"\n"
+				"      -n | --steps n\n"
+				"          number of steps of the game of life to apply to the seed\n"
+				"\n"
+				"      -o | --output-file output_file\n"
+				"          file containing the result of the nth transformation\n"
+				"          if none provided , results will be written to stdout\n"
+				"\n"
+				"      -v | --verbose\n"
+                "          show the transformation to the console step by step\n"
+				"\n"
+				"      --refresh-rate (msec)\n"
+				"          only relevant for verbose output. time between display of each transformation frame\n"
+				"\n"
+				"      --random-genesis-rate (0..1)\n"
+				"          probability that a dead cell will spontaneously generate\n"
+				"          between 0 and 1\n"
+				"\n"
+				"      --infinite-display-loop\n"
+				"          display in an infinite loop\n"
+				"          - todo: modify so it knows to stop when it is naturally over\n"
+				"\n"
+				"      -h | --help\n"
+				"          show this message\n"
+				"\n"
+				"      -d | --display-markers '<alive_marker> <not_alive_marker>'\n"
+				"          markers for the animation display. can't use comma as a marker\n"
 				"\n",
 			name);
 	exit(2);
@@ -431,15 +453,15 @@ int main (int argc, char* argv[]) {
 
 	for ( int i = 1; i < argc; ++i ) {
 		if (cstreq(argv[i],"-f") || cstreq(argv[i],"--input-file")) {
-			if (i+1 == argc) show_usage(argv[0]);
+			if (i+1 == argc) usage(argv[0]);
 			input_file = argv[++i];
 		}
 		else if (cstreq(argv[i],"-n") || cstreq(argv[i],"--steps")) {
-			if (i+1 == argc) show_usage(argv[0]);
+			if (i+1 == argc) usage(argv[0]);
 			steps = std::stoi(argv[++i]);
 		}
 		else if (cstreq(argv[i],"-o") || cstreq(argv[i],"--output-file")) {
-			if (i+1 == argc) show_usage(argv[0]);
+			if (i+1 == argc) usage(argv[0]);
 			output_file = argv[++i];
 		}
 		else if (cstreq(argv[i],"-v") || cstreq(argv[i],"--verbose")) {
@@ -449,15 +471,15 @@ int main (int argc, char* argv[]) {
 			infinite_display_loop = true;
 		}
 		else if (cstreq(argv[i],"--refresh-rate")) {
-			if (i+1 == argc) show_usage(argv[0]);
+			if (i+1 == argc) usage(argv[0]);
 			refresh_rate_msec = std::stoi(argv[++i]);
 		}
 		else if (cstreq(argv[i],"--random-genesis-rate")) {
-			if (i+1 == argc) show_usage(argv[0]);
+			if (i+1 == argc) usage(argv[0]);
 			random_genesis_rate = std::stod(argv[++i]);
 		}
 		else if (cstreq(argv[i],"-d") || cstreq(argv[i],"--display-markers")) {
-			if (i+1 == argc) show_usage(argv[0]);
+			if (i+1 == argc) usage(argv[0]);
 			char* items = argv[++i];
 			char a[1024], b[1024];
 
@@ -467,7 +489,7 @@ int main (int argc, char* argv[]) {
 			not_alive_marker = std::string(b);
 		}
 		else {
-			show_usage(argv[0]);
+			usage(argv[0]);
 		}
 	}
 
